@@ -1,61 +1,59 @@
 """
-Component class for the Entity Component System (ECS).
-
-This module defines the base Component class that all components will inherit from,
-providing common serialization and comparison methods.
+Component base class for the Entity Component System.
 """
 
 class Component:
     """
-    Base class for all components in the ECS architecture.
-    
-    Components are pure data containers with no behavior,
-    following the principles of ECS architecture.
+    Base class for all components in the ECS.
+
+    Components are pure data containers with no behavior.
+    They store the state for entities and are processed by systems.
     """
-    
+
     def __init__(self):
         """Initialize the component."""
-        self.owner_id = None  # Will be set when added to an entity
-    
+        self.entity = None  # Reference to the owning entity
+
+    def on_attach(self, entity):
+        """Called when the component is attached to an entity."""
+        self.entity = entity
+
+    def on_detach(self):
+        """Called when the component is detached from an entity."""
+        self.entity = None
+
     def serialize(self):
         """
-        Serialize the component to a dictionary.
-        
-        This method should be implemented by child classes to enable
-        saving and loading component data.
-        
+        Convert component data to a serializable format.
+
         Returns:
-            dict: Dictionary representation of the component.
+            dict: Serialized component data
         """
-        # Child classes should override this to provide proper serialization
+        # Base implementation returns an empty dict
+        # Subclasses should override this to include their data
         return {}
-    
+
     @classmethod
     def deserialize(cls, data):
         """
-        Deserialize from a dictionary to create a component.
-        
-        This is a class method that should be implemented by child classes
-        to create a component instance from serialized data.
-        
+        Create a component from serialized data.
+
         Args:
-            data (dict): Dictionary containing component data.
-            
+            data (dict): Serialized component data
+
         Returns:
-            Component: New component instance.
+            Component: New component instance
         """
-        # Child classes should override this to provide proper deserialization
+        # Base implementation creates an empty component
+        # Subclasses should override this to restore their data
         return cls()
-    
-    def copy(self):
+
+    def clone(self):
         """
         Create a copy of this component.
-        
-        This method should be implemented by child classes to enable
-        deep copying of components.
-        
+
         Returns:
-            Component: A new instance of the component with the same data.
+            Component: New component instance with the same data
         """
-        # Child classes should override this with proper deep copying
-        return self.__class__()
+        # Default implementation uses serialization
+        return self.__class__.deserialize(self.serialize())

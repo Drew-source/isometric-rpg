@@ -1,14 +1,12 @@
 """
-Entity Component System (ECS) package.
+Entity Component System module.
 
-This package contains the core classes for the Entity Component System architecture:
-- Entity: Container for components
-- Component: Data-only classes representing entity properties
-- System: Logic that processes entities with specific components
-- World: Central registry for entities and systems
+This module provides the core ECS architecture for the game.
 """
 
 from .component import Component
 from .entity import Entity
 from .system import System
 from .world import World
+
+__all__ = ['Component', 'Entity', 'System', 'World']

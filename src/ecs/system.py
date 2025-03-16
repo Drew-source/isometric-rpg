@@ -1,118 +1,100 @@
 """
-System class for the Entity Component System (ECS) architecture.
-
-This module defines the base System class that all systems will inherit from,
-providing common update methods and component requirements.
+System base class for the Entity Component System.
 """
-
-from typing import List, Type, Set
-
-from .component import Component
 
 class System:
     """
-    Base class for all systems in the ECS architecture.
-    
-    Systems contain the game logic that operates on entities with specific components.
+    Base class for all systems in the ECS.
+
+    Systems contain the logic to process entities with specific components.
+    They are responsible for implementing game behavior and mechanics.
     """
-    
-    def __init__(self, world=None):
+
+    def __init__(self, world):
         """
-        Initialize the system with an optional world reference.
-        
+        Initialize the system.
+
         Args:
-            world: Reference to the world containing entities.
+            world: The world this system belongs to
         """
         self.world = world
-        self.required_components = []  # List[Type[Component]]
-        self.active = True
-    
-    def set_world(self, world):
+        self.required_components = set()  # Component types required for processing
+        self.enabled = True  # Whether the system is enabled
+        self.priority = 0  # Execution priority (higher = earlier)
+
+    def initialize(self):
         """
-        Set the world reference.
-        
-        Args:
-            world: The world containing entities.
+        Initialize the system. Called when the system is added to the world.
+
+        Override this method to perform setup tasks.
         """
-        self.world = world
-    
-    def get_required_components(self) -> List[Type[Component]]:
-        """
-        Get the list of required component types.
-        
-        Returns:
-            List[Type[Component]]: List of component types required by this system.
-        """
-        return self.required_components
-    
-    def process_entity(self, entity_id, dt):
-        """
-        Process a single entity.
-        
-        Args:
-            entity_id: ID of the entity to process.
-            dt (float): Time delta since last update in seconds.
-        """
-        # To be implemented by subclasses
         pass
-    
+
+    def shutdown(self):
+        """
+        Shutdown the system. Called when the system is removed from the world.
+
+        Override this method to perform cleanup tasks.
+        """
+        pass
+
     def update(self, dt):
         """
-        Update all relevant entities.
-        
-        This method is called each frame with the time delta since the last update.
-        It should process all entities with the required components.
-        
+        Update the system.
+
         Args:
-            dt (float): Time delta since last update in seconds.
+            dt: Delta time in seconds
         """
-        if not self.world or not self.active:
+        if not self.enabled:
             return
-            
-        # Get entities with required components
-        for entity_id in self.world.get_entities_with_components(self.required_components):
-            entity = self.world.get_entity(entity_id)
-            if entity and entity.active:
-                self.process_entity(entity_id, dt)
-    
-    def on_entity_added(self, entity_id):
+
+        # Get entities that match the required components
+        entities = self.get_entities()
+
+        # Process the entities
+        self.process(entities, dt)
+
+    def process(self, entities, dt):
         """
-        Called when an entity is added to the world.
-        
+        Process the entities.
+
         Args:
-            entity_id: ID of the added entity.
+            entities: List of entities to process
+            dt: Delta time in seconds
         """
-        # Optional hook for subclasses
+        # Base implementation does nothing
+        # Subclasses should override this to implement their logic
         pass
-    
-    def on_entity_removed(self, entity_id):
+
+    def get_entities(self):
         """
-        Called when an entity is removed from the world.
-        
+        Get entities that match the required components.
+
+        Returns:
+            list: List of matching entities
+        """
+        if not self.required_components:
+            return []
+
+        return self.world.get_entities_with_components(self.required_components)
+
+    def enable(self):
+        """Enable the system."""
+        self.enabled = True
+
+    def disable(self):
+        """Disable the system."""
+        self.enabled = False
+
+    def set_priority(self, priority):
+        """
+        Set the execution priority of the system.
+
         Args:
-            entity_id: ID of the removed entity.
+            priority: Priority value (higher = earlier execution)
         """
-        # Optional hook for subclasses
-        pass
-    
-    def on_component_added(self, entity_id, component_type):
-        """
-        Called when a component is added to an entity.
-        
-        Args:
-            entity_id: ID of the entity.
-            component_type (Type[Component]): Type of the added component.
-        """
-        # Optional hook for subclasses
-        pass
-    
-    def on_component_removed(self, entity_id, component_type):
-        """
-        Called when a component is removed from an entity.
-        
-        Args:
-            entity_id: ID of the entity.
-            component_type (Type[Component]): Type of the removed component.
-        """
-        # Optional hook for subclasses
-        pass
+        self.priority = priority
+
+        # Notify world to resort systems
+        if self.world:
+            self.world.sort_systems()

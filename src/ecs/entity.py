@@ -1,193 +1,199 @@
 """
-Entity class for the Entity Component System (ECS) architecture.
-
-This module defines the Entity class that serves as a container for components,
-implementing an entity-component system pattern.
+Entity class for the Entity Component System.
 """
 
 import uuid
-from typing import Dict, Type, TypeVar, Optional, List, Set
-
-from .component import Component
-
-# TypeVar for better type hints with components
-T = TypeVar('T', bound=Component)
 
 class Entity:
     """
     Entity class that serves as a container for components.
-    
-    In the ECS architecture, entities are essentially just IDs that
-    group related components together. They have no behavior themselves.
+
+    Entities are essentially just IDs with a collection of components
+    that define their behavior and data.
     """
-    
-    def __init__(self, entity_id=None):
+
+    def __init__(self, world=None, entity_id=None):
         """
-        Initialize a new entity with an optional ID.
-        
+        Initialize a new entity.
+
         Args:
-            entity_id (str, optional): The entity ID. If not provided, a new UUID will be generated.
+            world: The world this entity belongs to
+            entity_id: Optional ID for the entity (generated if None)
         """
-        self.id = entity_id if entity_id else str(uuid.uuid4())
-        self.components = {}  # Dict[Type[Component], Component]
-        self.tags = set()  # Set[str]
-        self.active = True
-        
+        self.id = entity_id if entity_id is not None else str(uuid.uuid4())
+        self.world = world
+        self.components = {}  # Component type -> Component instance
+        self.tags = set()  # Set of string tags for quick filtering
+
     def add_component(self, component):
         """
         Add a component to this entity.
-        
+
         Args:
-            component (Component): The component to add.
-            
+            component: The component to add
+
         Returns:
-            Entity: Self for method chaining.
+            Entity: Self for method chaining
         """
-        component_type = type(component)
+        component_type = component.__class__
         self.components[component_type] = component
-        component.owner_id = self.id
+        component.on_attach(self)
+
+        # Notify world of component addition
+        if self.world:
+            self.world.on_component_added(self, component)
+
         return self
-        
+
     def remove_component(self, component_type):
         """
-        Remove a component by type from this entity.
-        
+        Remove a component from this entity.
+
         Args:
-            component_type (Type[Component]): The type of component to remove.
-            
+            component_type: The type of component to remove
+
         Returns:
-            Component or None: The removed component, or None if not found.
+            Component: The removed component, or None if not found
         """
         if component_type in self.components:
             component = self.components[component_type]
-            component.owner_id = None
+            component.on_detach()
             del self.components[component_type]
+
+            # Notify world of component removal
+            if self.world:
+                self.world.on_component_removed(self, component)
+
             return component
+
         return None
-    
-    def get_component(self, component_type: Type[T]) -> Optional[T]:
+
+    def get_component(self, component_type):
         """
-        Get a component by type.
-        
+        Get a component of the specified type.
+
         Args:
-            component_type (Type[Component]): The type of component to get.
-            
+            component_type: The type of component to get
+
         Returns:
-            Component or None: The component if found, otherwise None.
+            Component: The component, or None if not found
         """
         return self.components.get(component_type)
-    
-    def has_component(self, component_type: Type[Component]) -> bool:
+
+    def has_component(self, component_type):
         """
         Check if the entity has a component of the specified type.
-        
+
         Args:
-            component_type (Type[Component]): The type of component to check for.
-            
+            component_type: The type of component to check for
+
         Returns:
-            bool: True if the entity has the component, False otherwise.
+            bool: True if the entity has the component, False otherwise
         """
         return component_type in self.components
-    
-    def has_components(self, component_types: List[Type[Component]]) -> bool:
+
+    def has_components(self, component_types):
         """
         Check if the entity has all of the specified component types.
-        
+
         Args:
-            component_types (List[Type[Component]]): The types of components to check for.
-            
+            component_types: Collection of component types to check for
+
         Returns:
-            bool: True if the entity has all components, False otherwise.
+            bool: True if the entity has all components, False otherwise
         """
-        return all(component_type in self.components for component_type in component_types)
-    
-    def add_tag(self, tag: str):
+        return all(component_type in self.components for component_type in component_types)        
+
+    def add_tag(self, tag):
         """
         Add a tag to this entity.
-        
-        Tags can be used to quickly identify and group entities by purpose.
-        
+
         Args:
-            tag (str): The tag to add.
-            
+            tag: The tag to add
+
         Returns:
-            Entity: Self for method chaining.
+            Entity: Self for method chaining
         """
         self.tags.add(tag)
         return self
-    
-    def remove_tag(self, tag: str):
+
+    def remove_tag(self, tag):
         """
         Remove a tag from this entity.
-        
+
         Args:
-            tag (str): The tag to remove.
-            
+            tag: The tag to remove
+
         Returns:
-            Entity: Self for method chaining.
+            Entity: Self for method chaining
         """
-        self.tags.discard(tag)
+        if tag in self.tags:
+            self.tags.remove(tag)
         return self
-    
-    def has_tag(self, tag: str) -> bool:
+
+    def has_tag(self, tag):
         """
         Check if the entity has the specified tag.
-        
+
         Args:
-            tag (str): The tag to check for.
-            
+            tag: The tag to check for
+
         Returns:
-            bool: True if the entity has the tag, False otherwise.
+            bool: True if the entity has the tag, False otherwise
         """
         return tag in self.tags
-    
+
+    def destroy(self):
+        """
+        Destroy this entity, removing it from the world.
+        """
+        if self.world:
+            self.world.destroy_entity(self)
+
     def serialize(self):
         """
-        Serialize the entity to a dictionary.
-        
+        Convert entity to a serializable format.
+
         Returns:
-            dict: A dictionary representation of the entity.
+            dict: Serialized entity data
         """
-        serialized_components = {}
-        for component_type, component in self.components.items():
-            serialized_components[component_type.__name__] = {
-                "type": component_type.__name__,
-                "data": component.serialize()
-            }
-        
-        return {
+        serialized = {
             "id": self.id,
             "tags": list(self.tags),
-            "active": self.active,
-            "components": serialized_components
+            "components": {}
         }
-    
+
+        # Serialize each component
+        for component_type, component in self.components.items():
+            component_name = component_type.__name__
+            serialized["components"][component_name] = component.serialize()
+
+        return serialized
+
     @classmethod
-    def deserialize(cls, data, component_registry):
+    def deserialize(cls, world, data, component_registry):
         """
         Create an entity from serialized data.
-        
+
         Args:
-            data (dict): The serialized entity data.
-            component_registry (dict): A mapping of component names to types.
-            
+            world: The world this entity belongs to
+            data: Serialized entity data
+            component_registry: Registry of component types by name
+
         Returns:
-            Entity: A new entity with the deserialized components.
+            Entity: New entity instance
         """
-        entity = cls(entity_id=data.get("id"))
-        entity.active = data.get("active", True)
-        
+        entity = cls(world, data.get("id"))
+
         # Add tags
         for tag in data.get("tags", []):
             entity.add_tag(tag)
-        
+
         # Add components
-        for _, component_data in data.get("components", {}).items():
-            component_type_name = component_data.get("type")
-            component_type = component_registry.get(component_type_name)
-            
-            if component_type:
-                component = component_type.deserialize(component_data.get("data", {}))
+        for component_name, component_data in data.get("components", {}).items():
+            if component_name in component_registry:
+                component_type = component_registry[component_name]
+                component = component_type.deserialize(component_data)
                 entity.add_component(component)
-        
+
         return entity
