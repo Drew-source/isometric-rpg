@@ -1,137 +1,193 @@
 """
-Transform Component for the isometric RPG.
-
-This component represents the spatial position and orientation of entities.
+Transform component for the Entity Component System.
 """
 
-import math
-import json
-from copy import deepcopy
-
 from ..ecs.component import Component
-
-
-class Vector3:
-    """
-    A 3D vector class for position, scale, and direction.
-    """
-    
-    def __init__(self, x=0.0, y=0.0, z=0.0):
-        """
-        Initialize the Vector3 with x, y, z coordinates.
-        
-        Args:
-            x (float): X coordinate
-            y (float): Y coordinate
-            z (float): Z coordinate
-        """
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
-    
-    def __str__(self):
-        """Return string representation of the vector."""
-        return f"Vector3({self.x:.2f}, {self.y:.2f}, {self.z:.2f})"
-    
-    def __eq__(self, other):
-        """Check if two vectors are equal."""
-        if isinstance(other, Vector3):
-            return (
-                math.isclose(self.x, other.x) and
-                math.isclose(self.y, other.y) and
-                math.isclose(self.z, other.z)
-            )
-        return False
-    
-    def distance_to(self, other):
-        """Calculate the distance to another vector."""
-        return math.sqrt(
-            (self.x - other.x) ** 2 +
-            (self.y - other.y) ** 2 +
-            (self.z - other.z) ** 2
-        )
-    
-    def distance_to_xz(self, other):
-        """Calculate the distance to another vector on the X-Z plane."""
-        return math.sqrt(
-            (self.x - other.x) ** 2 +
-            (self.z - other.z) ** 2
-        )
-    
-    def distance_to_xy(self, other):
-        """Calculate the distance to another vector on the X-Y plane."""
-        return math.sqrt(
-            (self.x - other.x) ** 2 +
-            (self.y - other.y) ** 2
-        )
-    
-    def normalize(self):
-        """Normalize the vector to a unit vector."""
-        magnitude = math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
-        if magnitude > 0:
-            self.x /= magnitude
-            self.y /= magnitude
-            self.z /= magnitude
-        return self
-    
-    def to_dict(self):
-        """Convert to dictionary representation."""
-        return {
-            "x": self.x,
-            "y": self.y,
-            "z": self.z
-        }
-    
-    @classmethod
-    def from_dict(cls, data):
-        """Create a Vector3 from dictionary data."""
-        return cls(
-            x=data.get("x", 0.0),
-            y=data.get("y", 0.0),
-            z=data.get("z", 0.0)
-        )
-
+from ..core.utils import Vector2
 
 class TransformComponent(Component):
     """
-    Component representing position and orientation of an entity.
+    Component that stores position, rotation, and scale.
+    
+    This is a fundamental component that most entities will have.
+    It defines where an entity is located in the game world.
     """
     
-    def __init__(self, position=None, rotation=None, scale=None):
+    def __init__(self, x=0, y=0, z=0, rotation=0, scale=1):
         """
         Initialize the transform component.
         
         Args:
-            position (Vector3): Position in 3D space
-            rotation (Vector3): Rotation in degrees around each axis
-            scale (Vector3): Scale in each dimension
+            x: X coordinate
+            y: Y coordinate
+            z: Z coordinate (height)
+            rotation: Rotation in degrees
+            scale: Scale factor
         """
         super().__init__()
-        self.position = position if position is not None else Vector3(0, 0, 0)
-        self.rotation = rotation if rotation is not None else Vector3(0, 0, 0)
-        self.scale = scale if scale is not None else Vector3(1, 1, 1)
+        self.position = Vector2(x, y)
+        self.z = z
+        self.rotation = rotation
+        self.scale = scale
+        self.previous_position = Vector2(x, y)
+        self.previous_z = z
     
     def serialize(self):
-        """Serialize the component to a dictionary."""
+        """
+        Convert component data to a serializable format.
+        
+        Returns:
+            dict: Serialized component data
+        """
         return {
-            "position": self.position.to_dict(),
-            "rotation": self.rotation.to_dict(),
-            "scale": self.scale.to_dict()
+            "position": {
+                "x": self.position.x,
+                "y": self.position.y
+            },
+            "z": self.z,
+            "rotation": self.rotation,
+            "scale": self.scale
         }
     
     @classmethod
     def deserialize(cls, data):
-        """Deserialize from a dictionary to create a component."""
-        return cls(
-            position=Vector3.from_dict(data.get("position", {})),
-            rotation=Vector3.from_dict(data.get("rotation", {})),
-            scale=Vector3.from_dict(data.get("scale", {}))
-        )
+        """
+        Create a component from serialized data.
+        
+        Args:
+            data: Serialized component data
+            
+        Returns:
+            TransformComponent: New component instance
+        """
+        position = data.get("position", {})
+        x = position.get("x", 0)
+        y = position.get("y", 0)
+        z = data.get("z", 0)
+        rotation = data.get("rotation", 0)
+        scale = data.get("scale", 1)
+        
+        return cls(x, y, z, rotation, scale)
     
-    def copy(self):
-        """Create a deep copy of this component."""
-        return TransformComponent(
-            position=deepcopy(self.position),
-            rotation=deepcopy(self.rotation),
-            scale=deepcopy(self.scale)
-        )
+    def set_position(self, x, y, z=None):
+        """
+        Set the position.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            z: Z coordinate (optional)
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.previous_position.x = self.position.x
+        self.previous_position.y = self.position.y
+        
+        self.position.x = x
+        self.position.y = y
+        
+        if z is not None:
+            self.previous_z = self.z
+            self.z = z
+        
+        return self
+    
+    def set_rotation(self, rotation):
+        """
+        Set the rotation.
+        
+        Args:
+            rotation: Rotation in degrees
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.rotation = rotation
+        return self
+    
+    def set_scale(self, scale):
+        """
+        Set the scale.
+        
+        Args:
+            scale: Scale factor
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.scale = scale
+        return self
+    
+    def move(self, dx, dy, dz=0):
+        """
+        Move by a relative amount.
+        
+        Args:
+            dx: Change in X
+            dy: Change in Y
+            dz: Change in Z (optional)
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.previous_position.x = self.position.x
+        self.previous_position.y = self.position.y
+        
+        self.position.x += dx
+        self.position.y += dy
+        
+        if dz != 0:
+            self.previous_z = self.z
+            self.z += dz
+        
+        return self
+    
+    def rotate(self, drotation):
+        """
+        Rotate by a relative amount.
+        
+        Args:
+            drotation: Change in rotation (degrees)
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.rotation += drotation
+        return self
+    
+    def scale_by(self, factor):
+        """
+        Scale by a factor.
+        
+        Args:
+            factor: Scale factor
+            
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.scale *= factor
+        return self
+    
+    def has_moved(self):
+        """
+        Check if the transform has moved since the last update.
+        
+        Returns:
+            bool: True if moved, False otherwise
+        """
+        return (self.position.x != self.previous_position.x or
+                self.position.y != self.previous_position.y or
+                self.z != self.previous_z)
+    
+    def update_previous_position(self):
+        """
+        Update the previous position to match the current position.
+        
+        Returns:
+            TransformComponent: Self for method chaining
+        """
+        self.previous_position.x = self.position.x
+        self.previous_position.y = self.position.y
+        self.previous_z = self.z
+        return self

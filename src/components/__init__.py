@@ -1,14 +1,20 @@
 """
-Components package for the isometric RPG.
+Components module for the Entity Component System.
 
-This package contains various component classes for the ECS architecture:
-- TransformComponent: Position, rotation, and scale
-- CharacterStatsComponent: Character attributes and stats
-- CombatComponent: Combat capabilities, stance, and attack types  
-- AIComponent: Artificial intelligence behaviors
+This module provides the component classes for the ECS.
 """
 
-from .transform import TransformComponent, Vector3
-from .character_stats import CharacterStatsComponent, Attribute, Ability
+from ..ecs.component import Component
+from .ai import AIComponent
+from .transform import TransformComponent
+from .character_stats import CharacterStatsComponent
 from .combat import CombatComponent, CombatStance, AttackType
-from .ai import AIComponent, AIPersonality, AIState
+from ..collision.collision import (
+    CollisionComponent, 
+    CollisionShape, 
+    CircleShape, 
+    RectangleShape, 
+    PointShape,
+    CollisionShapeType,
+    CollisionLayer
+)
