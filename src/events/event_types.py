@@ -83,8 +83,11 @@ class EventType:
     UI_ELEMENT_HOVERED = "ui_element_hovered"
     UI_SCREEN_OPENED = "ui_screen_opened"
     UI_SCREEN_CLOSED = "ui_screen_closed"
+<<<<<<< HEAD
     WINDOW_RESIZED = "window_resized"
     FULLSCREEN_TOGGLED = "fullscreen_toggled"
+=======
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     
     # AI events
     AI_STATE_CHANGED = "ai_state_changed"
@@ -99,6 +102,7 @@ class EventType:
     MAP_SAVED = "map_saved"
     MAP_CHANGED = "map_changed"
     TILE_CHANGED = "tile_changed"
+<<<<<<< HEAD
     ENTITY_SPAWNED = "entity_spawned"
     
     # Camera events
@@ -107,3 +111,6 @@ class EventType:
     CAMERA_ROTATED = "camera_rotated"
     CAMERA_TARGET_CHANGED = "camera_target_changed"
     CAMERA_VIEWPORT_CHANGED = "camera_viewport_changed"
+=======
+    ENTITY_SPAWNED = "entity_spawned" 
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)

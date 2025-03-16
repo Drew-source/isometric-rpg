@@ -35,4 +35,8 @@ FONT_DIR = f"{ASSET_DIR}/fonts"
 
 # Save system
 SAVE_DIR = "saves"
+<<<<<<< HEAD
 AUTO_SAVE_INTERVAL = 300  # Seconds between auto-saves
+=======
+AUTO_SAVE_INTERVAL = 300  # Seconds between auto-saves 
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)

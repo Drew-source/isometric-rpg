@@ -9,6 +9,7 @@ from ..core.constants import TILE_WIDTH, TILE_HEIGHT, TILE_Z_HEIGHT
 
 class Vector2:
     """2D vector class for positions and directions."""
+<<<<<<< HEAD
 
     def __init__(self, x=0, y=0):
         self.x = x
@@ -23,10 +24,27 @@ class Vector2:
     def __mul__(self, scalar):
         return Vector2(self.x * scalar, self.y * scalar)
 
+=======
+    
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+    
+    def __add__(self, other):
+        return Vector2(self.x + other.x, self.y + other.y)
+    
+    def __sub__(self, other):
+        return Vector2(self.x - other.x, self.y - other.y)
+    
+    def __mul__(self, scalar):
+        return Vector2(self.x * scalar, self.y * scalar)
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def __truediv__(self, scalar):
         if scalar == 0:
             raise ZeroDivisionError("Cannot divide vector by zero")
         return Vector2(self.x / scalar, self.y / scalar)
+<<<<<<< HEAD
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -42,12 +60,30 @@ class Vector2:
         """Get the squared length of the vector (faster than length)."""
         return self.x * self.x + self.y * self.y
 
+=======
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    def __str__(self):
+        return f"Vector2({self.x}, {self.y})"
+    
+    def length(self):
+        """Get the length (magnitude) of the vector."""
+        return math.sqrt(self.x * self.x + self.y * self.y)
+    
+    def length_squared(self):
+        """Get the squared length of the vector (faster than length)."""
+        return self.x * self.x + self.y * self.y
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def normalize(self):
         """Return a normalized copy of the vector."""
         length = self.length()
         if length == 0:
             return Vector2(0, 0)
         return Vector2(self.x / length, self.y / length)
+<<<<<<< HEAD
 
     def distance_to(self, other):
         """Calculate distance to another vector."""
@@ -61,17 +97,40 @@ class Vector2:
         """Calculate dot product with another vector."""
         return self.x * other.x + self.y * other.y
 
+=======
+    
+    def distance_to(self, other):
+        """Calculate distance to another vector."""
+        return (other - self).length()
+    
+    def distance_squared_to(self, other):
+        """Calculate squared distance to another vector (faster)."""
+        return (other - self).length_squared()
+    
+    def dot(self, other):
+        """Calculate dot product with another vector."""
+        return self.x * other.x + self.y * other.y
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def angle_to(self, other):
         """Calculate angle to another vector in radians."""
         dot = self.normalize().dot(other.normalize())
         # Clamp to avoid floating point errors
         dot = max(-1.0, min(1.0, dot))
         return math.acos(dot)
+<<<<<<< HEAD
 
     def to_tuple(self):
         """Convert to tuple."""
         return (self.x, self.y)
 
+=======
+    
+    def to_tuple(self):
+        """Convert to tuple."""
+        return (self.x, self.y)
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     @staticmethod
     def from_tuple(tuple_value):
         """Create vector from tuple."""
@@ -89,7 +148,11 @@ def screen_to_iso(screen_x, screen_y, iso_z=0):
     """Convert screen coordinates to isometric coordinates (z=0 plane)."""
     # Adjust for z height
     screen_y += iso_z * (TILE_HEIGHT / 2)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     iso_x = (screen_x / (TILE_WIDTH / 2) + screen_y / (TILE_HEIGHT / 4)) / 2
     iso_y = (screen_y / (TILE_HEIGHT / 4) - screen_x / (TILE_WIDTH / 2)) / 2
     return iso_x, iso_y
@@ -114,31 +177,51 @@ def get_depth(iso_x, iso_y, iso_z=0):
 # Timer utility
 class Timer:
     """Simple timer for tracking elapsed time."""
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def __init__(self):
         self.start_time = time.time()
         self.paused_time = 0
         self.is_paused = False
         self.pause_start = 0
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def reset(self):
         """Reset the timer."""
         self.start_time = time.time()
         self.paused_time = 0
         self.is_paused = False
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def pause(self):
         """Pause the timer."""
         if not self.is_paused:
             self.is_paused = True
             self.pause_start = time.time()
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def resume(self):
         """Resume the timer."""
         if self.is_paused:
             self.is_paused = False
             self.paused_time += time.time() - self.pause_start
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     def get_elapsed(self):
         """Get elapsed time in seconds."""
         if self.is_paused:
@@ -151,6 +234,7 @@ def render_text(text, font, color, max_width=None, antialias=True):
     """Render text, optionally wrapping to max_width."""
     if not max_width:
         return font.render(text, antialias, color)
+<<<<<<< HEAD
 
     words = text.split(' ')
     lines = []
@@ -160,6 +244,17 @@ def render_text(text, font, color, max_width=None, antialias=True):
         test_line = ' '.join(current_line + [word])
         test_width, _ = font.size(test_line)
 
+=======
+    
+    words = text.split(' ')
+    lines = []
+    current_line = []
+    
+    for word in words:
+        test_line = ' '.join(current_line + [word])
+        test_width, _ = font.size(test_line)
+        
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
         if test_width <= max_width:
             current_line.append(word)
         else:
@@ -169,6 +264,7 @@ def render_text(text, font, color, max_width=None, antialias=True):
             else:
                 # Word is too long for the line, split it
                 current_line = [word]
+<<<<<<< HEAD
 
     if current_line:
         lines.append(' '.join(current_line))
@@ -176,10 +272,20 @@ def render_text(text, font, color, max_width=None, antialias=True):
     # Render each line
     line_surfaces = [font.render(line, antialias, color) for line in lines]
 
+=======
+    
+    if current_line:
+        lines.append(' '.join(current_line))
+    
+    # Render each line
+    line_surfaces = [font.render(line, antialias, color) for line in lines]
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     # Calculate total height
     line_height = font.get_linesize()
     total_height = line_height * len(line_surfaces)
     max_line_width = max(surface.get_width() for surface in line_surfaces)
+<<<<<<< HEAD
 
     # Create surface for all lines
     text_surface = pygame.Surface((max_line_width, total_height), pygame.SRCALPHA)
@@ -188,6 +294,16 @@ def render_text(text, font, color, max_width=None, antialias=True):
     for i, line_surface in enumerate(line_surfaces):
         text_surface.blit(line_surface, (0, i * line_height))
 
+=======
+    
+    # Create surface for all lines
+    text_surface = pygame.Surface((max_line_width, total_height), pygame.SRCALPHA)
+    
+    # Blit each line onto the surface
+    for i, line_surface in enumerate(line_surfaces):
+        text_surface.blit(line_surface, (0, i * line_height))
+    
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
     return text_surface
 
 
@@ -205,4 +321,8 @@ def ensure_dir_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
         return True
+<<<<<<< HEAD
     return False
+=======
+    return False 
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)

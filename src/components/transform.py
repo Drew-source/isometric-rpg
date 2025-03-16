@@ -190,4 +190,8 @@ class TransformComponent(Component):
         self.previous_position.x = self.position.x
         self.previous_position.y = self.position.y
         self.previous_z = self.z
+<<<<<<< HEAD
         return self
+=======
+        return self 
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)

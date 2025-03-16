@@ -114,4 +114,8 @@ class EventManager:
         Returns:
             bool: True if the event type has subscribers, False otherwise
         """
+<<<<<<< HEAD
         return event_type in self.subscribers and len(self.subscribers[event_type]) > 0
+=======
+        return event_type in self.subscribers and len(self.subscribers[event_type]) > 0 
+>>>>>>> 48f82ac (Initial commit with isometric RPG engine)
