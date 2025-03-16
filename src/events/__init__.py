@@ -1,9 +1,7 @@
 """
-Events package for the isometric RPG.
+Event system module.
 
-This package contains the event-driven architecture components:
-- EventManager: Handles event subscription and emission
-- EventType: Constants for all event types
+This module provides the event-driven architecture for the game.
 """
 
 from .event_manager import EventManager

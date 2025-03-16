@@ -1,43 +1,45 @@
 """
-Event type constants for the isometric RPG.
-
-This module defines constants for all event types used in the game's event system.
+Event type definitions for the event system.
 """
 
 class EventType:
     """
-    Event type constants used throughout the game.
+    Enumeration of event types used in the game.
     
-    These constants are used as keys for the event system to identify
-    different types of events.
+    These constants define the different types of events that can be
+    emitted and subscribed to in the event system.
     """
     
     # System events
-    GAME_INITIALIZED = "game_initialized"
-    GAME_STARTED = "game_started"
-    GAME_PAUSED = "game_paused"
-    GAME_RESUMED = "game_resumed"
-    GAME_QUIT = "game_quit"
+    ENTITY_CREATED = "entity_created"
+    ENTITY_DESTROYED = "entity_destroyed"
+    COMPONENT_ADDED = "component_added"
+    COMPONENT_REMOVED = "component_removed"
+    WORLD_CLEARING = "world_clearing"
+    WORLD_CLEARED = "world_cleared"
+    FLAG_CHANGED = "flag_changed"
     
     # Input events
     KEY_PRESSED = "key_pressed"
     KEY_RELEASED = "key_released"
-    MOUSE_MOVED = "mouse_moved"
     MOUSE_PRESSED = "mouse_pressed"
     MOUSE_RELEASED = "mouse_released"
+    MOUSE_MOVED = "mouse_moved"
     
     # Game state events
-    GAME_STATE_CHANGED = "game_state_changed"
-    SCENE_LOADED = "scene_loaded"
-    SCENE_UNLOADED = "scene_unloaded"
+    GAME_STARTED = "game_started"
+    GAME_PAUSED = "game_paused"
+    GAME_RESUMED = "game_resumed"
+    GAME_SAVED = "game_saved"
+    GAME_LOADED = "game_loaded"
+    AREA_ENTERED = "area_entered"
+    TIME_CHANGED = "time_changed"
     
     # Movement events
     ENTITY_MOVED = "entity_moved"
-    ENTITY_TELEPORTED = "entity_teleported"
-    ENTITY_COLLISION = "entity_collision"
-    ENTITY_STOPPED = "entity_stopped"
-    ENTITY_PATH_FOUND = "entity_path_found"
-    ENTITY_PATH_FAILED = "entity_path_failed"
+    PATH_FOUND = "path_found"
+    PATH_FAILED = "path_failed"
+    COLLISION_OCCURRED = "collision_occurred"
     
     # Combat events
     ATTACK_STARTED = "attack_started"
@@ -60,17 +62,16 @@ class EventType:
     THREAT_CHANGED = "threat_changed"
     
     # Inventory events
-    ITEM_ADDED = "item_added"
-    ITEM_REMOVED = "item_removed"
+    ITEM_ACQUIRED = "item_acquired"
     ITEM_USED = "item_used"
-    ITEM_DROPPED = "item_dropped"
+    ITEM_EQUIPPED = "item_equipped"
     INVENTORY_CHANGED = "inventory_changed"
     
     # Quest events
     QUEST_STARTED = "quest_started"
+    QUEST_UPDATED = "quest_updated"
     QUEST_COMPLETED = "quest_completed"
-    QUEST_FAILED = "quest_failed"
-    QUEST_OBJECTIVE_UPDATED = "quest_objective_updated"
+    OBJECTIVE_COMPLETED = "objective_completed"
     
     # Dialogue events
     DIALOGUE_STARTED = "dialogue_started"
@@ -80,14 +81,17 @@ class EventType:
     # UI events
     UI_ELEMENT_CLICKED = "ui_element_clicked"
     UI_ELEMENT_HOVERED = "ui_element_hovered"
-    UI_PANEL_OPENED = "ui_panel_opened"
-    UI_PANEL_CLOSED = "ui_panel_closed"
-    UI_NOTIFICATION = "ui_notification"
+    UI_SCREEN_OPENED = "ui_screen_opened"
+    UI_SCREEN_CLOSED = "ui_screen_closed"
+    WINDOW_RESIZED = "window_resized"
+    FULLSCREEN_TOGGLED = "fullscreen_toggled"
     
     # AI events
     AI_STATE_CHANGED = "ai_state_changed"
     AI_TARGET_ACQUIRED = "ai_target_acquired"
     AI_TARGET_LOST = "ai_target_lost"
+    AI_ACTION_STARTED = "ai_action_started"
+    AI_ACTION_COMPLETED = "ai_action_completed"
     
     # Map events
     MAP_CREATED = "map_created"
@@ -97,8 +101,9 @@ class EventType:
     TILE_CHANGED = "tile_changed"
     ENTITY_SPAWNED = "entity_spawned"
     
-    # Collision events
-    COLLISION_OCCURRED = "collision_occurred"
-    COLLISION_ENDED = "collision_ended"
-    TRIGGER_ENTERED = "trigger_entered"
-    TRIGGER_EXITED = "trigger_exited"
+    # Camera events
+    CAMERA_MOVED = "camera_moved"
+    CAMERA_ZOOMED = "camera_zoomed"
+    CAMERA_ROTATED = "camera_rotated"
+    CAMERA_TARGET_CHANGED = "camera_target_changed"
+    CAMERA_VIEWPORT_CHANGED = "camera_viewport_changed"
